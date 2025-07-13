@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>해적의 저주: 방탈출 게임</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo&family=Pirata+One&display=swap');
+
+        body {
+            font-family: 'Nanum Myeongjo', serif;
+            background-color: #000;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .stage {
+            display: none;
+            width: 100%;
+            max-width: 1000px;
+            height: 100vh;
+            max-height: 800px;
+            border: 2px solid #5a4a3a;
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .stage.active {
+            display: flex;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-family: 'Pirata One', cursive;
+            font-size: 3em;
+            color: #e0b45c;
+            text-shadow: 2px 2px 5px #000;
+            margin-top: 0;
+        }
+
+        p {
+            font-size: 1.1em;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 15px auto;
+        }
+        
+        .story {
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 3px solid #e0b45c;
+        }
+
+        .game-area {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 30px;
+            flex-grow: 1;
+        }
+
+        .game-item {
+            cursor: pointer;
+            border: 2px solid transparent;
+            padding: 10px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            text-align: center;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .game-item:hover {
+            border-color: #e0b45c;
+            transform: scale(1.05);
+        }
+        
+        .game-item img {
+            max-width: 100px;
+            height: auto;
+        }
+        
+        .game-item p {
+            font-size: 0.9em;
+            margin: 5px 0 0 0;
+        }
+
+        .password-area {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            z-index: 2;
+            position: relative;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 1.2em;
+            border: 2px solid #5a4a3a;
+            background-color: #1a1a1a;
+            color: #fff;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 1.2em;
+            font-family: 'Pirata One', cursive;
+            cursor: pointer;
+            background-color: #e0b45c;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #ffcf70;
+        }
+        
+        .hint-box {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 235, 59, 0.1);
+            border: 1px dashed #e0b45c;
+            border-radius: 5px;
+            min-height: 40px;
+        }
+        
+        #message {
+            color: #ff6b6b;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        
+        /* Stage Specific Styles */
+        #stage1 { background-image: url('https://raw.githubusercontent.com/joungbeom/test1/3d425b52e4e0b5288fe00383fa41bb2cb01027d5/img_01.jpg'); }
+        #stage2 { background-image: url('https://raw.githubusercontent.com/joungbeom/test1/3d425b52e4e0b5288fe00383fa41bb2cb01027d5/img_02.jpg'); }
+        #stage3 { background-image: url('https://raw.githubusercontent.com/joungbeom/test1/3d425b52e4e0b5288fe00383fa41bb2cb01027d5/img_03.jpg'); }
+        #stage4 { background-image: url('https://raw.githubusercontent.com/joungbeom/test1/3d425b52e4e0b5288fe00383fa41bb2cb01027d5/img_04.jpg'); }
+
+        #stage4 h1 { font-size: 4em; }
+        #stage4 p { font-size: 1.5em; }
+
+    </style>
+</head>
+<body>
+
+    <!-- Stage 1: 선장의 비밀 지도 -->
+    <div id="stage1" class="stage active">
+        <div class="overlay"></div>
+        <div class="content">
+            <h1>1. 선장의 비밀 지도</h1>
+            <div class="story">
+                <p>"어리석은 녀석들... 감히 내 보물을 넘보다니! 이 저주받은 배에서 영원히 내 노예가 될 것이다!"</p>
+                <p>어둠 속에서 검은 수염의 목소리가 울려 퍼진다. 눈앞에는 찢어진 양피지 조각이 놓여 있다. "북쪽의 별은 길을 안내하지만, 달이 가장 높이 떴을 때만 그 빛을 드러낸다."</p>
+            </div>
+            <div class="game-area">
+                <div class="game-item" onclick="getClue(1, 1, '낡은 나침반이 유난히 북쪽을 향해 반짝인다. 바늘 끝에 숫자 [8]이 새겨져 있다.')">
+                    <img src="https://github.com/joungbeom/test1/blob/main/%EB%82%98%EC%B9%A8%EB%B0%98-removebg-preview.png?raw=true" alt="나침반">
+                    <p>낡은 나침반</p>
+                </div>
+                <div class="game-item" onclick="getClue(1, 2, '지도 조각들을 순서대로 맞추니 [NORTH] 라는 글자가 나타났다. (지도 조각 1/3 클릭)')">
+                    <img src="https://github.com/joungbeom/test1/blob/main/%EC%A7%80%EB%8F%84-removebg-preview.png?raw=true" alt="지도 조각">
+                    <p>찢어진 지도 조각</p>
+                </div>
+                <div class="game-item" onclick="getClue(1, 3, '가장 높이 뜬 달은 보름달이다. 달을 누르자 뒤에서 [5]라는 숫자가 나타났다.')">
+                    <img src="https://github.com/joungbeom/test1/blob/main/%EB%8B%AC-removebg-preview.png?raw=true" alt="달 그림">
+                    <p>벽에 걸린 달 그림</p>
+                </div>
+            </div>
+            <div class="password-area">
+                <div class="hint-box" id="hint-box-1">여기에 단서가 표시됩니다.</div>
+                <input type="text" id="password-1" placeholder="비밀번호 입력">
+                <button onclick="checkPassword(1)">문 열기</button>
+                <p id="message-1" class="message"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stage 2: 저주받은 선장실 -->
+    <div id="stage2" class="stage">
+        <div class="overlay"></div>
+        <div class="content">
+            <h1>2. 저주받은 선장실</h1>
+            <div class="story">
+                <p>"내 방까지 들어오다니, 제법이군. 하지만 진짜 시험은 이제부터다. 나의 심장은 굳게 잠겨있지."</p>
+                <p>방 중앙에는 자물쇠로 잠긴 거대한 보물 상자가 놓여 있다. 암호를 풀어야 한다.</p>
+            </div>
+            <div class="game-area">
+                <div class="game-item" onclick="getClue(2, 1, '항해 일지: ...해골섬 근처에서 대승을 거두었다. 당시 위치는 [위도 18, 경도 24]였다...')">
+                    <img src="https://github.com/joungbeom/test1/blob/main/%EC%A7%80%EB%8F%84-removebg-preview.png?raw=true" alt="항해 일지">
+                    <p>항해 일지</p>
+                </div>
+                <div class="game-item" onclick="getClue(2, 2, '해전도의 해골섬 근처 X표시를 누르니, 상자의 암호로 보이는 [1824]가 적혀있다.')">
+                    <img src="https://github.com/joungbeom/test1/blob/main/%ED%95%B4%EC%A0%84%EB%8F%84-removebg-preview.png?raw=true" alt="해전도">
+                    <p>해전도</p>
+                </div>
+                <div class="game-item" onclick="getClue(2, 3, '해골의 눈을 누르자 (왼쪽-오른쪽-오른쪽) 딱딱 소리가 나며 \'숫자\'라는 단어가 떠오른다.')">
+                    <img src="https://github.com/joungbeom/test1/blob/main/%ED%95%B4%EA%B3%A8-removebg-preview.png?raw=true" alt="장식된 해골">
+                    <p>장식된 해골</p>
+                </div>
+            </div>
+            <div class="password-area">
+                <div class="hint-box" id="hint-box-2">여기에 단서가 표시됩니다.</div>
+                <input type="text" id="password-2" placeholder="비밀번호 입력">
+                <button onclick="checkPassword(2)">상자 열기</button>
+                <p id="message-2" class="message"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stage 3: 유령의 갑판 -->
+    <div id="stage3" class="stage">
+        <div class="overlay"></div>
+        <div class="content">
+            <h1>3. 유령의 갑판</h1>
+            <div class="story">
+                <p>"그렇게 쉬울 줄 알았나? 이 수수께끼를 풀지 못하면, 너희도 내 유령 선원들과 함께 영원히 이 배를 떠돌게 될 것이다!"</p>
+                <p>수수께끼: "나는 목소리가 없지만, 거대한 폭풍과 고요한 바다에 대해 이야기한다. 나는 항상 움직이지만, 결코 내 자리를 떠나지 않는다. 나는 무엇일까?"</p>
+            </div>
+            <div class="game-area">
+                <div class="game-item" onclick="getClue(3, 1, '돛에 그려진 음계를 순서대로(도-레-미) 누르자 바람이 불며 [SAIL]이라는 글자가 나타났다 사라진다.')">
+                    <img src="https://github.com/joungbeom/test1/blob/main/%EC%9D%8C%EA%B3%84-removebg-preview.png?raw=true" alt="음계">
+                    <p>돛에 그려진 음계</p>
+                </div>
+                <div class="game-item" onclick="getClue(3, 2, '수수께끼의 정답은 배를 움직이는 거대한 천... 바로 \'돛\'이다.')">
+                    <img src="https://github.com/joungbeom/test1/blob/main/%EB%8F%9B-removebg-preview.png?raw=true" alt="찢어진 돛">
+                    <p>찢어진 돛</p>
+                </div>
+                 <div class="game-item" onclick="getClue(3, 3, '오래된 뱃고동(종)을 치자 \'바람의 방향을 알려주는 것\'이라는 속삭임이 들린다.')">
+                    <img src="https://github.com/joungbeom/test1/blob/main/%EB%B1%83%EA%B3%A0%EB%8F%99-removebg-preview.png?raw=true" alt="뱃고동">
+                    <p>오래된 뱃고동</p>
+                </div>
+            </div>
+            <div class="password-area">
+                <div class="hint-box" id="hint-box-3">여기에 단서가 표시됩니다.</div>
+                <input type="text" id="password-3" placeholder="비밀번호 입력">
+                <button onclick="checkPassword(3)">저주 풀기</button>
+                <p id="message-3" class="message"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stage 4: 탈출 -->
+    <div id="stage4" class="stage">
+        <div class="overlay"></div>
+        <div class="content">
+            <h1>탈출 성공!</h1>
+            <div class="story">
+                <p>"훌륭하다! 마침내 저주를 풀고 자유를 얻었구나. 이제 이 보물은 너희들의 것이다."</p>
+                <p>눈부신 햇살과 함께 당신들은 무인도에서 깨어납니다. 저 멀리 수평선이 보입니다. 새로운 모험이 당신을 기다립니다!</p>
+            </div>
+            <div class="password-area">
+                <button onclick="location.reload()">다시 플레이하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const passwords = {
+            1: "NORTH85",
+            2: "1824",
+            3: "SAIL"
+        };
+
+        let collectedClues = {
+            1: new Set(),
+            2: new Set(),
+            3: new Set()
+        };
+
+        function getClue(stage, clueId, clueText) {
+            const hintBox = document.getElementById(`hint-box-${stage}`);
+            
+            if (!collectedClues[stage].has(clueId)) {
+                if (collectedClues[stage].size === 0) {
+                    hintBox.innerHTML = ''; // Clear initial message
+                }
+                const p = document.createElement('p');
+                p.textContent = clueText;
+                hintBox.appendChild(p);
+                collectedClues[stage].add(clueId);
+            }
+        }
+
+        function checkPassword(stage) {
+            const input = document.getElementById(`password-${stage}`);
+            const message = document.getElementById(`message-${stage}`);
+            const correctPassword = passwords[stage];
+
+            if (input.value.trim().toUpperCase() === correctPassword) {
+                message.textContent = "";
+                document.getElementById(`stage${stage}`).classList.remove('active');
+                if (stage < 4) {
+                    document.getElementById(`stage${stage + 1}`).classList.add('active');
+                }
+            } else {
+                message.textContent = "틀렸습니다! 다시 생각해보세요.";
+                input.value = "";
+            }
+        }
+    </script>
+
+</body>
+</html>
